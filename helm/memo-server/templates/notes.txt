@@ -1,0 +1,2 @@
+To deploy:
+  helm upgrade --install memo ./helm/memo-server -f values.yaml

@@ -1,0 +1,50 @@
+namespace: memo-prod
+createNamespace: true
+environment: prod
+
+image:
+  repository: ghcr.io/your-org/memo-server
+  tag: prod
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+  hosts:
+    - host: memo.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+database:
+  host: memo-postgres
+  port: 5432
+  name: memo
+  user: memo
+  password: memo
+
+postgres:
+  image: postgres:15-alpine
+  replicaCount: 1
+  resources: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 300m
+    memory: 512Mi
+
+affinity: {}
+nodeSelector: {}
+tolerations: []

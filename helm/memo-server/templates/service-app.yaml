@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: memo-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "memo-server.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "memo-server.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: 8000

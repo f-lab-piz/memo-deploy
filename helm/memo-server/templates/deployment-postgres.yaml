@@ -2,25 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: memo-postgres
-  namespace: memo
+  namespace: {{ .Values.namespace }}
   labels:
-    app: memo
-    tier: db
+    {{- include "memo-server.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.postgres.replicaCount }}
   selector:
     matchLabels:
-      app: memo
-      tier: db
+      app: memo-postgres
   template:
     metadata:
       labels:
-        app: memo
-        tier: db
+        app: memo-postgres
     spec:
       containers:
         - name: postgres
-          image: postgres:15-alpine
+          image: {{ .Values.postgres.image }}
           ports:
             - containerPort: 5432
           env:
@@ -44,22 +41,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
       volumes:
         - name: data
           emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: memo-postgres
-  namespace: memo
-  labels:
-    app: memo
-    tier: db
-spec:
-  selector:
-    app: memo
-    tier: db
-  ports:
-    - port: 5432
-      targetPort: 5432

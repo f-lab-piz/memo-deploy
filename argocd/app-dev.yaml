@@ -8,7 +8,10 @@ spec:
   source:
     repoURL: https://github.com/OWNER/memo-deploy.git
     targetRevision: dev
-    path: k8s/overlays/dev
+    path: helm/memo-server
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: memo-dev

@@ -2,26 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: memo-server
-  namespace: memo
+  namespace: {{ .Values.namespace }}
   labels:
-    app: memo
-    tier: api
+    {{- include "memo-server.labels" . | nindent 4 }}
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: memo
-      tier: api
+      {{- include "memo-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: memo
-        tier: api
+        {{- include "memo-server.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: memo-server
-          image: ghcr.io/your-org/memo-server:dev
-          imagePullPolicy: Always
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8000
           envFrom:
@@ -46,26 +43,10 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 20
           resources:
-            requests:
-              cpu: 50m
-              memory: 128Mi
-            limits:
-              cpu: 200m
-              memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: memo-server
-  namespace: memo
-  labels:
-    app: memo
-    tier: api
-spec:
-  selector:
-    app: memo
-    tier: api
-  ports:
-    - name: http
-      port: 80
-      targetPort: 8000
+            {{- toYaml .Values.resources | nindent 12 }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
